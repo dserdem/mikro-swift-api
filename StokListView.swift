@@ -1,25 +1,25 @@
 import SwiftUI
 
-struct StokListView: View {
+struct YeniStokView: View {
     @ObservedObject var viewModel: MikroViewModel
+    @State private var stokKodu: String = ""
+    @State private var stokAdi: String = ""
     
     var body: some View {
-        List {
-            ForEach(viewModel.stoklar, id: \.stokKodu) { stok in
-                VStack(alignment: .leading) {
-                    Text(stok.stokKodu)
-                        .font(.headline)
-                    Text(stok.stokAdi)
-                        .font(.subheadline)
+        Form {
+            Section(header: Text("Stok Bilgileri")) {
+                TextField("Stok Kodu", text: $stokKodu)
+                TextField("Stok Adı", text: $stokAdi)
+            }
+            
+            Button("Kaydet") {
+                Task {
+                    await viewModel.yeniStokEkle(stokKodu: stokKodu, stokAdi: stokAdi)
                 }
             }
+            .disabled(stokKodu.isEmpty || stokAdi.isEmpty)
         }
-        .navigationTitle("Stok Listesi")
-        .onAppear {
-            Task {
-                await viewModel.getStokList()
-            }
-        }
+        .navigationTitle("Yeni Stok")
         
         if viewModel.isLoading {
             ProgressView()
